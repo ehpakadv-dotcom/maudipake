@@ -1,23 +1,18 @@
 name: Windows 11 
-
 on:
   workflow_dispatch:
-
 jobs:
   rdp-job:
     runs-on: windows-2025
     timeout-minutes: 360
-
     steps:
     - name: Mengaktifkan RDP dan Mengatur Password User
       shell: powershell
       run: |
-       
         net user runneradmin P@sswordRDP2025!
-        
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-        
+
         Write-Host "=================================================="
         Write-Host "AKUN RDP BERHASIL DIKONFIGURASI"
         Write-Host "Username : runneradmin"
@@ -28,16 +23,16 @@ jobs:
       shell: powershell
       run: |
         Write-Host "Mengunduh Bore CLI..."
-        Windows x86_64
         Invoke-WebRequest -Uri "https://github.com/ekzhang/bore/releases/download/v0.6.0/bore-v0.6.0-x86_64-pc-windows-msvc.zip" -OutFile "bore.zip"
-        
+
         Write-Host "Mengekstrak berkas..."
-        Expand-Archive -Path "bore.zip" -DestinationPath "."
-        
+        Expand-Archive -Path "bore.zip" -DestinationPath "." -Force
+
         if (Test-Path "bore.exe") {
             Write-Host "Bore CLI siap digunakan!"
         } else {
             Write-Host "Gagal mengekstrak Bore CLI."
+            Get-ChildItem -Recurse
             exit 1
         }
 
@@ -48,7 +43,7 @@ jobs:
         Write-Host "Memulai"
         Write-Host "Log"
         Write-Host "=================================================="
-        
+
         while ($true) {
             .\bore.exe local 3389 --to bore.pub
             Write-Host "Koneksi tunnel terputus. Menghubungkan ulang dalam 5 detik..."
